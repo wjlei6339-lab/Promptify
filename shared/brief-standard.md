@@ -1,19 +1,40 @@
 # Promptify Brief Standard
 
-Every generated Promptify brief must include these fields unless a selected task type explicitly removes one:
+Promptify briefs are compact by default. Stronger host models need clear intent,
+context, constraints, and verification expectations; they do not need a verbose
+form when the same information can be carried in fewer lines.
 
-| Field | Required | Purpose |
+Every generated Promptify brief must include these core blocks unless a selected
+task type explicitly removes one:
+
+| Block | Required | Purpose |
 |---|---|---|
-| 任务目标 | Yes | Restate the intended outcome in concrete terms. |
-| 假设 | Conditional | Required when input is vague or task type detection is uncertain. |
-| 执行模式 | Yes | State direct execution, prompt-only, analysis-first, review-only, or plan-only. |
-| 项目上下文 | Yes | Tell the host assistant what local context to inspect first. |
-| 执行要求 | Yes | Define the order of investigation, planning, editing, and validation. |
-| 边界限制 | Yes | Define what should not be changed. |
-| 验收标准 | Yes | Define observable completion criteria. |
-| 验证方式 | Yes | Require relevant tests, lint, typecheck, or documented manual checks. |
-| 安全门禁 | Conditional | Required for high-risk signals or destructive actions. |
-| 最终汇报 | Yes | Define what the assistant must report back. |
+| 目标 | Yes | Restate the intended outcome in concrete terms. |
+| 假设 | Conditional | Include only when input is vague or task type detection is uncertain. |
+| 模式 | Yes | State direct execution, prompt-only, analysis-first, review-only, or plan-only. |
+| 上下文 | Yes | Tell the host assistant what local context to inspect first. |
+| 要求 | Yes | Combine execution order, boundaries, acceptance, verification, and final report expectations. |
+| 安全门禁 | Conditional | Include only for high-risk signals or destructive actions. |
+
+## Compression Rules
+
+- Prefer 4 compact blocks: `目标`, `模式`, `上下文`, and `要求`.
+- Add `假设` only when it prevents ambiguity.
+- Add `安全门禁` only when the input includes high-risk signals.
+- Keep sentences short and task-specific.
+- Avoid repeating generic host-agent rules unless they affect the selected task.
+- Preserve technical identifiers, file paths, commands, package names, and framework names exactly.
+- Keep professional boundaries: scope limits, verification, and final reporting must remain present, even when merged into `要求`.
+
+## Generation Flow
+
+Before filling a generated brief:
+- Read `shared/context-discovery.md`.
+- Parse the original user input and identify likely task type candidates.
+- Explore the smallest useful project context allowed by the selected mode.
+- Confirm task type and risk level after discovery.
+- Fill the selected compact template with project-specific context, boundaries,
+  verification, and reporting expectations.
 
 ## Mode Rules
 

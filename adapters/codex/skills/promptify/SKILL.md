@@ -14,6 +14,7 @@ Consult these repository-root shared sources:
 - `shared/brief-standard.md`
 - `shared/task-routing.md`
 - `shared/safety.md`
+- `shared/context-discovery.md`
 - `shared/templates/*.md`
 
 ## Codex Rules
@@ -22,12 +23,14 @@ Consult these repository-root shared sources:
 - Honor current session instructions, sandbox behavior, existing code style, and test conventions.
 - Inspect the workspace before editing.
 - Preserve unrelated user changes.
+- Explore the smallest useful project context before filling generated briefs.
+- Generate compact briefs by default: include `目标`, `模式`, `上下文`, and `要求`; add `假设` or `安全门禁` only when needed.
 - Prefer direct execution when the host supports it.
 - Use prompt-only behavior when the user asks to generate a reusable brief.
 - Use analysis-first mode for high-risk signals.
 - Do not perform destructive edits without explicit confirmation.
 - Editing/direct execution modes must report changed files, behavior changes, verification result, risks, and follow-ups.
-- Prompt-only mode must output the generated brief and stop.
+- Prompt-only mode must output only the compact generated brief and stop.
 - Review-only mode must lead with findings, include file/line references where possible, and omit a changed-file summary unless edits were explicitly requested later.
 - Plan-only mode must report the staged plan, risks, tests, and rollout notes, and omit a changed-file summary unless edits were explicitly requested later.
 
