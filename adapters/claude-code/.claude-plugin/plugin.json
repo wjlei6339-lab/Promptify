@@ -2,19 +2,13 @@
   "name": "promptify",
   "version": "0.1.0",
   "description": "Turn brief developer intent into structured Claude Code and Codex task workflows.",
-  "author": "Promptify",
+  "author": {
+    "name": "Promptify"
+  },
   "commands": [
-    "promptify",
-    "promptify-generate",
-    "promptify-task",
-    "promptify-debug",
-    "promptify-refactor",
-    "promptify-test",
-    "promptify-review",
-    "promptify-docs",
-    "promptify-plan"
+    "./commands/"
   ],
   "skills": [
-    "promptify"
+    "./skills/"
   ]
 }
