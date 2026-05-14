@@ -95,11 +95,11 @@ promptify uninstall --host=claude-code,codex
 
 - `promptify install --host=...` 允许选择 Claude Code、Codex 或两者；可使用 `claude-code`、`codex` 或 `claude-code,codex`。
 - 安装会把 Promptify 资源复制到 `~/.promptify/current/`，并在所选宿主配置中写入 Promptify-managed block。
-- Claude Code 写入 `~/.claude/CLAUDE.md`；Codex 写入 `~/.codex/AGENTS.md`。
+- Claude Code 写入 `~/.claude/CLAUDE.md`，并注册本地插件 `promptify@promptify-local`，让 `/promptify` 等 slash commands 出现在 Claude Code 输入框中；Codex 写入 `~/.codex/AGENTS.md`。
 - 写入配置时会保留已有用户内容，只替换 Promptify-managed block。
 - 如果目标配置已存在，安装会先在 `~/.promptify/backups/` 下创建备份。
-- `promptify doctor` 是 read-only 检查，只读取安装路径和 adapter/template 状态，不修改文件。
-- `promptify uninstall --host=...` 只移除所选宿主配置中的 Promptify-managed block，保留其他用户内容。
+- `promptify doctor` 是 read-only 检查，只读取安装路径、adapter/template 状态和 Claude Code 本地插件注册状态，不修改文件。
+- `promptify uninstall --host=...` 会移除所选宿主配置中的 Promptify-managed block；Claude Code 还会移除 `promptify@promptify-local` 插件注册，保留其他用户内容。
 
 推荐目录结构：
 

@@ -30,6 +30,37 @@ test('update refreshes resources after install and runs doctor', async () => {
   assert.match(await readFile(path.join(paths.current, 'README.md'), 'utf8'), /Promptify/);
 });
 
+test('update refreshes the Claude Code local plugin when Claude Code is installed', async () => {
+  const homeDir = await mkdtemp(path.join(os.tmpdir(), 'promptify-update-plugin-'));
+  const paths = createPaths({ homeDir, packageRoot: process.cwd() });
+  const output = [];
+  const io = {
+    stdout: (line) => output.push(line),
+    stderr: (line) => output.push(line)
+  };
+  const pkg = JSON.parse(await readFile(path.join(process.cwd(), 'package.json'), 'utf8'));
+  const pluginCommandPath = path.join(
+    homeDir,
+    '.claude',
+    'plugins',
+    'cache',
+    'promptify-local',
+    'promptify',
+    pkg.version,
+    'commands',
+    'promptify.md'
+  );
+
+  await installCommand({ flags: { host: 'claude-code', yes: true } }, io, { homeDir, paths });
+  await writeFile(pluginCommandPath, 'stale command\n', 'utf8');
+
+  const code = await updateCommand({ flags: {} }, io, { homeDir, paths });
+
+  assert.equal(code, 0);
+  assert.match(await readFile(pluginCommandPath, 'utf8'), /# \/promptify/);
+  assert.match(output.join('\n'), /已刷新 Claude Code 插件/);
+});
+
 test('uninstall removes selected host managed block and preserves user content', async () => {
   const homeDir = await mkdtemp(path.join(os.tmpdir(), 'promptify-uninstall-'));
   const paths = createPaths({ homeDir, packageRoot: process.cwd() });
@@ -59,6 +90,29 @@ test('uninstall removes selected host managed block and preserves user content',
   const codexConfig = await readFile(codexConfigPath, 'utf8');
   assert.match(codexConfig, /BEGIN PROMPTIFY MANAGED BLOCK/);
   assert.match(codexConfig, /Promptify for Codex/);
+});
+
+test('uninstall removes the Claude Code local plugin registration', async () => {
+  const homeDir = await mkdtemp(path.join(os.tmpdir(), 'promptify-uninstall-plugin-'));
+  const paths = createPaths({ homeDir, packageRoot: process.cwd() });
+  const output = [];
+  const io = {
+    stdout: (line) => output.push(line),
+    stderr: (line) => output.push(line)
+  };
+
+  await installCommand({ flags: { host: 'claude-code', yes: true } }, io, { homeDir, paths });
+
+  const installedPluginsPath = path.join(homeDir, '.claude', 'plugins', 'installed_plugins.json');
+  const before = JSON.parse(await readFile(installedPluginsPath, 'utf8'));
+  assert.ok(before.plugins['promptify@promptify-local']);
+
+  const code = await uninstallCommand({ flags: { host: 'claude-code' } }, io, { homeDir, paths });
+
+  assert.equal(code, 0);
+  const after = JSON.parse(await readFile(installedPluginsPath, 'utf8'));
+  assert.equal(after.plugins['promptify@promptify-local'], undefined);
+  assert.match(output.join('\n'), /已移除 Claude Code 插件注册/);
 });
 
 test('uninstall treats a missing config file as already absent', async () => {

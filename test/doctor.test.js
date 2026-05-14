@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { installCommand } from '../lib/commands/install.js';
 import { doctorCommand, runDoctor } from '../lib/commands/doctor.js';
+import { createPaths } from '../lib/paths.js';
 import { copyResources } from '../lib/resources.js';
 
 const expectedTemplates = ['task.md', 'bugfix.md', 'feature.md', 'refactor.md', 'test.md', 'review.md', 'docs.md', 'plan.md'];
@@ -76,6 +78,24 @@ test('doctorCommand prints check status and returns success code', async () => {
 
   assert.equal(code, 0);
   assert.equal(output.every((line) => line.startsWith('OK ')), true);
+});
+
+test('doctorCommand reports Claude Code local plugin registration after install', async () => {
+  const homeDir = await mkdtemp(path.join(os.tmpdir(), 'promptify-doctor-plugin-'));
+  const paths = createPaths({ homeDir, packageRoot: process.cwd() });
+  const output = [];
+  const io = {
+    stdout: (line) => output.push(line),
+    stderr: (line) => output.push(line)
+  };
+
+  await installCommand({ flags: { host: 'claude-code', yes: true } }, io, { homeDir, paths });
+  output.length = 0;
+
+  const code = await doctorCommand(io, { homeDir, paths });
+
+  assert.equal(code, 0);
+  assert.equal(output.some((line) => line.startsWith('OK claude plugin registration:')), true);
 });
 
 test('doctorCommand prints failures and returns failure code', async () => {
