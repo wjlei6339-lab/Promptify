@@ -44,6 +44,9 @@ Thumbs.db
 # Local worktrees
 .worktrees/
 
+# Superpowers session artifacts
+docs/superpowers/
+
 # Environment
 .env
 .env.local
