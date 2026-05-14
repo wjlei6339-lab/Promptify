@@ -4,8 +4,8 @@ Use this file when Codex cannot load a dedicated Promptify command.
 
 ## Usage
 
-- Direct execution: `promptify: <short task>`
-- Prompt-only generation: `promptify generate: <short task>`
+- Guided prompt-first: `promptify: <short task>`
+- Prompt-only compatibility alias: `promptify generate: <short task>`
 - Review: `promptify review: <scope>`
 - Plan: `promptify plan: <feature or goal>`
 
@@ -20,9 +20,11 @@ Use this file when Codex cannot load a dedicated Promptify command.
    - preserve unrelated user changes;
    - follow `AGENTS.md` and session instructions;
    - verify with relevant commands;
-6. Generate compact briefs by default: include `目标`, `模式`, `上下文`, and `要求`; add `假设` or `安全门禁` only when needed.
-7. Editing/direct execution modes must report changed files, behavior changes, verification result, risks, and follow-ups.
-8. Prompt-only mode must output only the compact generated brief and stop.
-9. Review-only mode must lead with findings, include file/line references where possible, and omit a changed-file summary unless edits were explicitly requested later.
-10. Plan-only mode must report the staged plan, risks, tests, and rollout notes, and omit a changed-file summary unless edits were explicitly requested later.
-11. For high-risk inputs, start with analysis and request explicit confirmation before destructive edits.
+6. Generate compact briefs by default using the localized required blocks from `shared/brief-standard.md`; add assumptions or a safety gate only when needed.
+7. Default Promptify invocation must output the compact generated brief first, then ask whether the user wants to enter execution.
+8. Do not edit files or run execution commands from the default invocation until the user confirms execution.
+9. Confirmed execution modes must report changed files, behavior changes, verification result, risks, and follow-ups.
+10. Prompt-only compatibility mode must output only the compact generated brief and stop.
+11. Review-only mode must lead with findings, include file/line references where possible, and omit a changed-file summary unless edits were explicitly requested later.
+12. Plan-only mode must report the staged plan, risks, tests, and rollout notes, and omit a changed-file summary unless edits were explicitly requested later.
+13. For high-risk inputs, start with analysis and request explicit confirmation before destructive edits.

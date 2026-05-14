@@ -92,15 +92,16 @@ Plan-only:
 
 ## Brief Filling Rules
 
-Use discovery results to fill these brief fields:
+Use discovery results to fill the localized brief fields from
+`shared/brief-standard.md`:
 
-- `目标`: restate the goal using project-specific nouns when known.
-- `假设`: state assumptions only when discovery cannot confirm intent.
-- `上下文`: list the exact files, directories, tools, or conventions to
+- Goal / `目标`: restate the goal using project-specific nouns when known.
+- Assumptions / `假设`: state assumptions only when discovery cannot confirm intent.
+- Context / `上下文`: list the exact files, directories, tools, or conventions to
   inspect first.
-- `要求`: include task-specific investigation order, scope limits, verification,
+- Requirements / `要求`: include task-specific investigation order, scope limits, verification,
   and final reporting expectations.
-- `安全门禁`: include confirmation requirements when high-risk signals or
+- Safety Gate / `安全门禁`: include confirmation requirements when high-risk signals or
   destructive actions are present.
 
 Keep the final brief concise. The brief should guide execution, not become a

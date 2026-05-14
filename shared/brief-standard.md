@@ -5,26 +5,27 @@ context, constraints, and verification expectations; they do not need a verbose
 form when the same information can be carried in fewer lines.
 
 Every generated Promptify brief must include these core blocks unless a selected
-task type explicitly removes one:
+task type explicitly removes one. Render block labels in the user's input
+language:
 
-| Block | Required | Purpose |
-|---|---|---|
-| 目标 | Yes | Restate the intended outcome in concrete terms. |
-| 假设 | Conditional | Include only when input is vague or task type detection is uncertain. |
-| 模式 | Yes | State direct execution, prompt-only, analysis-first, review-only, or plan-only. |
-| 上下文 | Yes | Tell the host assistant what local context to inspect first. |
-| 要求 | Yes | Combine execution order, boundaries, acceptance, verification, and final report expectations. |
-| 安全门禁 | Conditional | Include only for high-risk signals or destructive actions. |
+| Chinese label | English label | Required | Purpose |
+|---|---|---|---|
+| 目标 | Goal | Yes | Restate the intended outcome in concrete terms. |
+| 假设 | Assumptions | Conditional | Include only when input is vague or task type detection is uncertain. |
+| 模式 | Mode | Yes | State guided prompt-first, prompt-only, execution-after-confirmation, analysis-first, review-only, or plan-only. |
+| 上下文 | Context | Yes | Tell the host assistant what local context to inspect first. |
+| 要求 | Requirements | Yes | Combine execution order, boundaries, acceptance, verification, and final report expectations. |
+| 安全门禁 | Safety Gate | Conditional | Include only for high-risk signals or destructive actions. |
 
 ## Compression Rules
 
-- Prefer 4 compact blocks: `目标`, `模式`, `上下文`, and `要求`.
-- Add `假设` only when it prevents ambiguity.
-- Add `安全门禁` only when the input includes high-risk signals.
+- Prefer 4 compact blocks: goal, mode, context, and requirements.
+- Add assumptions only when they prevent ambiguity.
+- Add a safety gate only when the input includes high-risk signals.
 - Keep sentences short and task-specific.
 - Avoid repeating generic host-agent rules unless they affect the selected task.
 - Preserve technical identifiers, file paths, commands, package names, and framework names exactly.
-- Keep professional boundaries: scope limits, verification, and final reporting must remain present, even when merged into `要求`.
+- Keep professional boundaries: scope limits, verification, and final reporting must remain present, even when merged into the requirements block.
 
 ## Generation Flow
 
@@ -35,11 +36,22 @@ Before filling a generated brief:
 - Confirm task type and risk level after discovery.
 - Fill the selected compact template with project-specific context, boundaries,
   verification, and reporting expectations.
+- Treat `shared/templates/*.md` as content templates. Their Chinese headings and
+  prose define required intent, but the final rendered brief must follow the
+  language rules below.
 
 ## Mode Rules
 
-Direct execution mode:
-- Treat the generated brief as the active instruction for the current session.
+Guided prompt-first mode:
+- Default `/promptify <short task>` behavior.
+- Output the compact generated brief first.
+- Ask the user whether to enter the execution stage.
+- Do not edit files or run execution commands before the user confirms.
+- If the user confirms, treat the generated brief as the active instruction for the current session.
+- If high-risk signals are present, enter analysis-first mode even after confirmation and require explicit confirmation before high-risk or destructive edits.
+
+Execution-after-confirmation mode:
+- Use only after the user confirms they want to execute a generated brief.
 - Inspect the workspace before editing.
 - Preserve unrelated user changes.
 - Plan briefly before edits.
@@ -47,6 +59,7 @@ Direct execution mode:
 - Report changed files, behavior changes, verification results, risks, and follow-ups.
 
 Prompt-only mode:
+- Compatibility behavior for `/promptify:generate <short task>` and `promptify generate: <short task>`.
 - Output only the generated brief.
 - Do not read files, run commands, edit files, or continue into execution.
 - Include verification and safety expectations for the future executor.
@@ -68,6 +81,10 @@ Plan-only mode:
 - Do not edit code unless the user explicitly asks to continue.
 
 ## Language Rules
-- Default output language is Chinese.
-- If the user's task is mostly English, English output is allowed unless local instructions prefer Chinese.
+- Match the generated brief language to the user's short task language.
+- If the user's task is mostly Chinese, use Chinese labels and Chinese prose.
+- If the user's task is mostly English, use English labels and English prose.
+- For mixed-language input, use the dominant natural-language portion of the
+  user's task. Ignore code, paths, commands, package names, and framework names
+  when deciding the dominant language.
 - Keep technical identifiers, commands, file paths, package names, and framework names unchanged.

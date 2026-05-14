@@ -1,6 +1,6 @@
 ---
 name: promptify
-description: Convert short developer intent into structured Codex task workflows with direct execution as the preferred default.
+description: Convert short developer intent into structured Codex task briefs and guide the user into optional execution.
 ---
 
 # Promptify for Codex
@@ -24,12 +24,13 @@ Consult these repository-root shared sources:
 - Inspect the workspace before editing.
 - Preserve unrelated user changes.
 - Explore the smallest useful project context before filling generated briefs.
-- Generate compact briefs by default: include `目标`, `模式`, `上下文`, and `要求`; add `假设` or `安全门禁` only when needed.
-- Prefer direct execution when the host supports it.
-- Use prompt-only behavior when the user asks to generate a reusable brief.
+- Generate compact briefs by default using the localized required blocks from `shared/brief-standard.md`; add assumptions or a safety gate only when needed.
+- Default Promptify invocation to guided prompt-first behavior: output the compact brief, then ask whether to enter execution.
+- Do not edit files or run execution commands from the default invocation until the user confirms execution.
+- Keep `promptify generate:` as a prompt-only compatibility alias.
 - Use analysis-first mode for high-risk signals.
 - Do not perform destructive edits without explicit confirmation.
-- Editing/direct execution modes must report changed files, behavior changes, verification result, risks, and follow-ups.
+- Confirmed execution modes must report changed files, behavior changes, verification result, risks, and follow-ups.
 - Prompt-only mode must output only the compact generated brief and stop.
 - Review-only mode must lead with findings, include file/line references where possible, and omit a changed-file summary unless edits were explicitly requested later.
 - Plan-only mode must report the staged plan, risks, tests, and rollout notes, and omit a changed-file summary unless edits were explicitly requested later.
@@ -39,6 +40,6 @@ Consult these repository-root shared sources:
 When slash commands are unavailable, interpret user phrases like these as Promptify invocations:
 
 - `promptify: 修复登录失败提示`
-- `promptify generate: 重构订单状态计算逻辑`
+- `promptify generate: 重构订单状态计算逻辑` (compatibility alias)
 - `promptify review: 当前改动`
 - `promptify plan: 支持团队模板覆盖`

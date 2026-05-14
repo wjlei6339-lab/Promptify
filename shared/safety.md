@@ -19,8 +19,8 @@ Treat these signals as high risk:
 
 | Safety level | Examples | Default behavior |
 |---|---|---|
-| Read-only | Inspect files, search code, read docs, summarize current behavior | Allowed during direct execution and analysis-first mode. |
-| Low-risk edit | Small scoped fix, docs update, focused test addition | Allowed in direct execution when no high-risk signal is present. |
+| Read-only | Inspect files, search code, read docs, summarize current behavior | Allowed during guided prompt-first discovery, confirmed execution, and analysis-first mode. |
+| Low-risk edit | Small scoped fix, docs update, focused test addition | Allowed after execution confirmation when no high-risk signal is present. |
 | Medium-risk edit | Refactor, dependency change, broad test rewrite, behavior-affecting feature | Require brief plan before editing and relevant verification after editing. |
 | High-risk edit | Delete files, migration, auth or permission change, payment flow change, production config change, mass rewrite | Analysis-first only; require explicit user confirmation before execution. |
 | Destructive action | Remove modules, purge data, irreversible migration, forceful cleanup | Never perform without explicit confirmation and rollback or recovery notes. |

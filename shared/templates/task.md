@@ -8,7 +8,7 @@ Use this when task type detection is uncertain or the input contains mixed inten
 基于用户输入完成最可能的开发任务；若目标不清晰，先写明合理假设。
 
 模式：
-调查式直接执行；含高风险信号时先分析并确认。
+先生成高质量 brief 并询问是否进入执行阶段；目标不足时先澄清，含高风险信号时先分析并确认。
 
 上下文：
 按 `shared/context-discovery.md` 做最小必要发现，优先读仓库指令、相关实现、测试约定、README、包脚本、CI 配置和用户会话指令。

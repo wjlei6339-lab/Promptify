@@ -19,7 +19,7 @@ Task routing or safety rules:
 3. Run the adapter scan for mode names and shared template references.
 
 Shared templates:
-1. Confirm every template keeps the required compact Chinese block labels.
+1. Confirm every template keeps the required compact block labels and that final rendering follows `shared/brief-standard.md` language rules.
 2. Confirm execution mode, boundaries, validation, and final report instructions
    are specific to the task type.
 3. Confirm each template's `上下文` block points to context discovery.
@@ -81,7 +81,7 @@ Before finishing, read the final diff and check:
 2. Shared behavior lives under `shared/`.
 3. Claude Code-only behavior lives under `adapters/claude-code/`.
 4. Codex-only behavior lives under `adapters/codex/`.
-5. Chinese-first output rules remain intact.
+5. Input-language output rules remain intact.
 6. No unrelated runtime, service, database, telemetry, or UI scope was added.
 
 ## Final Report Template

@@ -2,7 +2,7 @@
 
 ## Project Role
 
-Promptify is a Markdown-first task orchestration package for Claude Code and Codex. It converts short developer intent into structured coding task briefs and defaults to direct execution when the host platform supports it.
+Promptify is a Markdown-first task orchestration package for Claude Code and Codex. It converts short developer intent into structured coding task briefs, shows the generated brief first, and asks the user whether to enter execution.
 
 This repository is currently an MVP documentation and workflow package. Do not add a runtime service, package manager, web UI, database, telemetry, cloud sync, or MCP server unless the PRD is updated first.
 
@@ -29,10 +29,10 @@ Shared behavior files:
 - Put Claude Code-specific instructions only under `adapters/claude-code/`.
 - Do not duplicate shared templates into the Claude adapter unless packaging requirements explicitly force it.
 - Treat all `shared/...` references in Claude adapter files as repository-root-relative paths.
-- Keep the default output language Chinese-first while preserving technical identifiers, commands, paths, package names, and framework names.
+- Match generated brief language to the user's input language by default while preserving technical identifiers, commands, paths, package names, and framework names.
 - Preserve the current command modes:
-  - `/promptify`: direct execution unless high-risk signals require analysis-first mode.
-  - `/promptify:generate`: prompt-only; do not edit or run commands.
+  - `/promptify`: guided prompt-first; output the generated brief, then ask whether to enter execution.
+  - `/promptify:generate`: prompt-only compatibility alias; do not edit, run commands, or ask to execute.
   - `/promptify:review`: review-only; findings first.
   - `/promptify:plan`: plan-only; do not edit code unless the user explicitly asks to continue.
 
@@ -48,7 +48,7 @@ Shared behavior files:
 After changing shared templates, Claude adapter files, README, or this file, run the relevant checks:
 
 ```bash
-rg -n "任务目标：|执行模式：|项目上下文：|执行要求：|边界限制：|验收标准：|验证方式：|最终汇报：" shared/templates
+rg -n "目标：|模式：|上下文：|要求：" shared/templates
 rg -n "analysis-first|prompt-only|review-only|plan-only|shared/templates" adapters/claude-code
 rg -n "T[B]D|T[O]DO|implement late[r]|fill in detail[s]" shared adapters README.md AGENTS.md CLAUDE.md
 python3 -m json.tool adapters/claude-code/.claude-plugin/plugin.json

@@ -39,14 +39,14 @@ promptify doctor
 2. 对 Claude Code，通过宿主插件流程加载仓库根目录或 `adapters/claude-code/`。
 3. 对 Codex，加载 `adapters/codex/skills/promptify/SKILL.md`，或使用 `adapters/codex/instructions/promptify.md` 作为 fallback instructions。
 4. 运行 `README.md` 中的验证命令。
-5. 运行 prompt-only smoke test：
+5. 运行 guided prompt-first smoke test：
 
 ```text
-/promptify:generate 修复登录失败提示
-promptify generate: 修复登录失败提示
+/promptify 修复登录失败提示
+promptify: 修复登录失败提示
 ```
 
-预期结果：Promptify 返回 Chinese-first 的结构化 brief，并且在 prompt-only 模式下不编辑文件。
+预期结果：Promptify 返回 Chinese-first 的结构化 brief，询问是否进入执行阶段，并且在用户确认前不编辑文件。
 
 ## 用户更新流程
 
@@ -68,7 +68,7 @@ git pull --ff-only
 
 1. 运行 `README.md` 中的验证命令。
 2. 确认 `shared/` 仍与 `adapters/` 同级存在。
-3. 在每个正在使用的宿主中运行一次 prompt-only smoke test。
+3. 在每个正在使用的宿主中运行一次 guided prompt-first smoke test。
 4. 跨 release tag 更新时阅读 release notes。
 
 固定版本安装应使用 tag：

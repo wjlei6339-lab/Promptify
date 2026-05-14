@@ -6,8 +6,8 @@
 - Product type: AI coding assistant task orchestration plugin / workflow package
 - Version: v0.1 PRD
 - Date: 2026-05-13
-- Primary language: Chinese
-- Core goal: Turn short developer intent into high-quality task instructions for Claude Code and Codex, with direct execution as the default workflow where the host platform supports it.
+- Primary generated-brief language: match user input language
+- Core goal: Turn short developer intent into high-quality task instructions for Claude Code and Codex, using one recommended command that generates the brief first and asks whether to enter execution.
 
 ## 2. Background
 
@@ -31,7 +31,7 @@ These short instructions are convenient, but they often miss key information tha
 
 The result is that Claude Code or Codex may over-edit, under-investigate, skip validation, or require multiple correction rounds.
 
-Promptify solves this by acting as a task orchestration layer for AI coding assistants. It converts short user intent into structured, professional, platform-aware task instructions, then either executes the task directly or outputs the generated instruction for reuse.
+Promptify solves this by acting as a task orchestration layer for AI coding assistants. It converts short user intent into structured, professional, platform-aware task instructions, then guides the user into execution or keeps the generated instruction for reuse.
 
 ## 3. Product Positioning
 
@@ -89,15 +89,16 @@ Current pain points:
 
 ### 6.1 MVP Goals
 
-The MVP should allow a user to enter a short task and have Claude Code or Codex proceed with a high-quality execution brief, without requiring manual copy and paste where direct execution is available.
+The MVP should allow a user to enter a short task, receive a high-quality execution brief, and choose whether Claude Code or Codex should continue into execution.
 
 The MVP must:
 
 - Accept short natural-language task input.
 - Identify the likely task type.
 - Generate a structured platform-aware task brief.
-- Default to direct execution instead of prompt-only output.
-- Offer a prompt-only mode for reuse, learning, or review.
+- Default to guided prompt-first behavior instead of immediate execution.
+- Ask the user whether to enter execution after showing the generated brief.
+- Keep a prompt-only compatibility alias for reuse, learning, or existing workflows.
 - Include task boundaries, verification requirements, and final reporting expectations.
 - Treat high-risk tasks conservatively.
 - Support optional local NPM CLI distribution for install, update, uninstall, and verification workflows without changing the Markdown-first core.
@@ -142,7 +143,7 @@ For supported task types, generated task briefs should include:
 
 ## 8. Core User Flows
 
-### 8.1 Default Direct Execution Flow
+### 8.1 Default Guided Prompt-First Flow
 
 User input:
 
@@ -153,14 +154,14 @@ User input:
 Expected behavior:
 
 1. The plugin identifies the task as a bugfix or debug task.
-2. The plugin generates an internal structured execution brief.
-3. The host assistant directly proceeds with the task.
-4. The assistant reads relevant files, identifies the cause, applies a scoped fix, and verifies it.
-5. The assistant reports changes, verification results, and remaining risks.
+2. The plugin generates a structured execution brief and shows it to the user.
+3. The host assistant asks whether to enter execution.
+4. If the user confirms, the assistant reads relevant files, identifies the cause, applies a scoped fix, and verifies it.
+5. The assistant reports changes, verification results, and remaining risks after execution.
 
-User should not need to copy a generated prompt.
+User should not need to learn a second command before deciding whether to execute.
 
-### 8.2 Prompt-Only Generation Flow
+### 8.2 Prompt-Only Compatibility Flow
 
 User input:
 
@@ -174,7 +175,7 @@ Expected behavior:
 2. The plugin outputs a structured platform-aware prompt.
 3. The assistant does not edit files, run commands, or continue execution.
 
-This mode is for learning, sharing, saving, or manual review.
+This compatibility alias is for learning, sharing, saving, or manual review. New users should learn `/promptify <short_task>` first.
 
 ### 8.3 High-Risk Analysis Flow
 
@@ -199,9 +200,9 @@ Expected behavior:
 /promptify <short_task>
 ```
 
-Default mode: direct execution.
+Default mode: guided prompt-first.
 
-The generated task brief should be treated as the active instruction for the current assistant session when the host supports direct execution. The user should see execution progress and final results, not only a generated prompt.
+The generated task brief should be shown to the user first. Promptify should then ask whether to enter execution. The assistant must not edit files or run execution commands until the user confirms.
 
 ### 9.2 Prompt-Only Command
 
@@ -209,7 +210,7 @@ The generated task brief should be treated as the active instruction for the cur
 /promptify:generate <short_task>
 ```
 
-Default mode: generate only.
+Default mode: prompt-only compatibility alias.
 
 Rules:
 
@@ -257,7 +258,7 @@ When multiple cues are present, the plugin should route the task using the follo
    - `/promptify:test` always uses the test template.
    - `/promptify:plan` always uses the plan template.
 
-2. High-risk signals override normal direct execution.
+2. High-risk signals override normal execution confirmation.
    - If the input includes deletion, migration, payment, auth, permission, production, security, mass update, rewrite, or purge signals, the task enters analysis-first mode even if another task type is detected.
    - The selected task template may still be identified, but destructive execution is gated by confirmation.
 
@@ -287,7 +288,7 @@ When multiple cues are present, the plugin should route the task using the follo
 
 ## 11. Generated Task Brief Standard
 
-Every generated execution brief should include the following sections unless the selected task type clearly does not need one:
+Every generated execution brief should include the following sections unless the selected task type clearly does not need one. Chinese examples use Chinese labels; English input should render equivalent English labels and prose.
 
 ```text
 任务目标：
@@ -321,21 +322,26 @@ Each generated brief should make the following fields explicit:
 | Task goal | Yes | Restate the intended outcome in concrete terms. |
 | Assumptions | Conditional | Required when input is vague or task type detection is uncertain. |
 | Project context instructions | Yes | Tell the host assistant what local context to inspect first. |
-| Execution mode | Yes | State whether the task is direct execution, prompt-only, analysis-first, or review-only. |
+| Execution mode | Yes | State whether the task is guided prompt-first, prompt-only, execution-after-confirmation, analysis-first, review-only, or plan-only. |
 | Scope boundaries | Yes | Define what should not be changed. |
 | Work process | Yes | Define the expected order of investigation, planning, editing, and validation. |
 | Verification | Yes | Require the most relevant available tests or checks. |
 | Safety gates | Conditional | Required for high-risk signals or destructive actions. |
 | Final report format | Yes | Define what the assistant must report back. |
 
-### 11.2 Direct Execution vs Prompt-Only Output
+### 11.2 Guided Prompt-First vs Prompt-Only Output
 
-Direct execution mode should:
+Guided prompt-first mode should:
+
+- Output the compact generated brief first.
+- Ask the user whether to enter execution.
+- Avoid editing files or running execution commands before confirmation.
+- Enter analysis-first mode when high-risk signals are present, even if the user asks to execute.
+
+Execution-after-confirmation mode should:
 
 - Treat the generated brief as the active instruction for the current session.
-- Avoid printing a long prompt unless useful for transparency.
-- Proceed to inspect the workspace, plan briefly, edit if appropriate, verify, and report.
-- Enter analysis-first mode when high-risk signals are present.
+- Inspect the workspace, plan briefly, edit if appropriate, verify, and report.
 
 Prompt-only mode should:
 
@@ -346,9 +352,9 @@ Prompt-only mode should:
 
 ### 11.3 Language Rules
 
-MVP output language should default to Chinese.
+MVP output language should follow the user's short task language.
 
-If the user's short task is mostly English, the generated brief may use English unless configuration or surrounding project instructions prefer Chinese.
+If the user's short task is mostly Chinese, the generated brief should use Chinese labels and prose. If the user's short task is mostly English, the generated brief should use English labels and prose. Mixed-language input should follow the dominant natural-language portion, ignoring technical identifiers.
 
 Technical identifiers, commands, file paths, package names, and framework names should remain in their original form.
 
@@ -367,7 +373,7 @@ Generated internal brief:
 修复登录失败时错误提示不准确的问题，并保持现有登录流程行为不变。
 
 执行模式：
-直接执行。先定位问题原因，再进行最小范围修复。
+先生成高质量 brief 并询问是否进入执行阶段；确认后先定位问题原因，再进行最小范围修复。
 
 项目上下文：
 优先阅读当前仓库中的登录、认证、错误处理、文案映射、测试相关代码。遵守平台指令文件、现有代码风格和测试约定。
@@ -407,8 +413,8 @@ Claude Code packaging should use the official plugin model where available:
 
 Claude Code behavior:
 
-- `/promptify` defaults to direct execution.
-- `/promptify:generate` only outputs the generated task brief.
+- `/promptify` defaults to guided prompt-first behavior.
+- `/promptify:generate` remains a prompt-only compatibility alias.
 - Generated briefs should explicitly tell Claude Code to honor `CLAUDE.md`, project memory, existing code style, and relevant test commands.
 
 ### 12.2 Codex Support
@@ -424,9 +430,9 @@ Codex packaging should use the conventions available in the local Codex environm
 
 Codex behavior:
 
-- The default workflow should also prefer direct execution.
+- The default workflow should also prefer guided prompt-first behavior.
 - The generated task brief should instruct Codex to inspect the workspace first, preserve unrelated user changes, use existing project patterns, and verify with the most relevant commands.
-- Prompt-only generation should remain available for users who want to copy, inspect, or share the task brief.
+- Prompt-only compatibility generation should remain available for users who want to copy, inspect, or share the task brief.
 
 ### 12.3 Shared Core and Platform Adapters
 
@@ -442,8 +448,8 @@ This avoids maintaining two unrelated products while still respecting each host'
 
 | Capability | Claude Code MVP | Codex MVP | Fallback |
 |---|---|---|---|
-| Direct execution command | Supported through Claude Code plugin command where available. | Preferred through Codex skill or command-like workflow where available. | Provide a copyable task brief and clear manual execution instruction. |
-| Prompt-only generation | Supported through `/promptify:generate`. | Supported through promptify skill or instruction package. | Output the generated brief without running commands or editing files. |
+| Guided prompt-first command | Supported through Claude Code plugin command where available. | Preferred through Codex skill or command-like workflow where available. | Provide a copyable task brief and ask how to continue manually. |
+| Prompt-only compatibility alias | Supported through `/promptify:generate`. | Supported through `promptify generate:` skill or instruction package. | Output the generated brief without asking to execute, running commands, or editing files. |
 | Specialized task commands | Implement as command files when supported. | Implement as skill entry points or documented invocation patterns. | Use `/promptify <short_task>` with explicit task keywords. |
 | Project instruction usage | Honor `CLAUDE.md`, memory, and repository conventions. | Honor `AGENTS.md`, session instructions, sandbox constraints, and repository conventions. | Instruct the host assistant to inspect local docs before editing. |
 | Safety gating | Command brief instructs analysis-first and confirmation behavior. | Skill / instruction brief instructs analysis-first and confirmation behavior. | Generated prompt includes explicit confirmation gate. |
@@ -454,11 +460,11 @@ This avoids maintaining two unrelated products while still respecting each host'
 If a host platform cannot inject a generated brief as an active instruction, Promptify should:
 
 1. Generate the full task brief.
-2. Clearly state that automatic direct execution is unavailable in the current host mode.
+2. Clearly state that automatic execution is unavailable in the current host mode.
 3. Tell the user how to continue manually.
 4. Avoid pretending execution has started.
 
-If a host platform supports direct execution only partially, Promptify should prefer the safest supported workflow over simulating unsupported behavior.
+If a host platform supports execution only partially, Promptify should prefer the safest supported workflow over simulating unsupported behavior.
 
 ## 13. Template Requirements
 
@@ -585,8 +591,8 @@ When high-risk signals are present:
 
 | Safety level | Examples | Default behavior |
 |---|---|---|
-| Read-only | Inspect files, search code, read docs, summarize current behavior | Allowed during direct execution and analysis-first mode. |
-| Low-risk edit | Small scoped fix, docs update, focused test addition | Allowed in direct execution when no high-risk signal is present. |
+| Read-only | Inspect files, search code, read docs, summarize current behavior | Allowed during guided prompt-first discovery, confirmed execution, and analysis-first mode. |
+| Low-risk edit | Small scoped fix, docs update, focused test addition | Allowed after execution confirmation when no high-risk signal is present. |
 | Medium-risk edit | Refactor, dependency change, broad test rewrite, behavior-affecting feature | Require brief plan before editing and relevant verification after editing. |
 | High-risk edit | Delete files, migration, auth or permission change, payment flow change, production config change, mass rewrite | Analysis-first only; require explicit user confirmation before execution. |
 | Destructive action | Remove modules, purge data, irreversible migration, forceful cleanup | Never perform without explicit confirmation and stated rollback or recovery notes. |
@@ -616,7 +622,7 @@ When high-risk signals are present, the generated prompt should instruct the fut
 MVP can rely on fixed defaults:
 
 - Default command mode: execute
-- Default output language: Chinese
+- Default output language: user's input language
 - Default detail level: medium
 - Default safety mode: conservative
 
@@ -627,7 +633,7 @@ Future versions may support:
 ```json
 {
   "defaultMode": "execute",
-  "language": "zh-CN",
+  "language": "input",
   "detailLevel": "medium",
   "safetyMode": "conservative",
   "teamTemplateOverrides": true
@@ -708,8 +714,8 @@ Placeholder files are acceptable only when they clearly state why the host does 
 
 - Claude Code plugin skeleton
 - Codex skill or instruction package skeleton
-- `/promptify` direct execution command
-- `/promptify:generate` prompt-only command
+- `/promptify` guided prompt-first command
+- `/promptify:generate` prompt-only compatibility alias
 - Specialized commands for common task types
 - Task type detection guidance
 - Seven core templates
@@ -730,7 +736,7 @@ Placeholder files are acceptable only when they clearly state why the host does 
 
 MVP is accepted when the following scenarios work:
 
-1. `/promptify 修复登录失败提示` causes the host assistant to directly proceed with a scoped bugfix workflow rather than only outputting a prompt.
+1. `/promptify 修复登录失败提示` outputs a structured platform-aware task brief, asks whether to execute, and performs no edits before confirmation.
 2. `/promptify:generate 修复登录失败提示` outputs a structured platform-aware task brief and performs no edits.
 3. `/promptify:review 当前改动` uses a review-first format where findings lead the response.
 4. `/promptify 删除旧支付模块` enters analysis-first mode and does not delete code without explicit confirmation.
@@ -742,13 +748,13 @@ MVP is accepted when the following scenarios work:
 
 | Scenario | Input | Expected mode | Expected route | Editing allowed | Commands allowed | Must include in final output |
 |---|---|---|---|---|---|---|
-| Default bugfix | `/promptify 修复登录失败提示` | Direct execution | debug / bugfix | Yes, scoped | Yes, relevant checks | Root cause, changed files, verification result. |
-| Prompt-only bugfix | `/promptify:generate 修复登录失败提示` | Prompt-only | debug / bugfix | No | No | Complete generated brief only. |
+| Default bugfix | `/promptify 修复登录失败提示` | Guided prompt-first | debug / bugfix | Only after user confirms | Read-only discovery before confirmation | Complete generated brief plus execution prompt. |
+| Prompt-only compatibility bugfix | `/promptify:generate 修复登录失败提示` | Prompt-only | debug / bugfix | No | No | Complete generated brief only. |
 | Review | `/promptify:review 当前改动` | Review-only | review | No unless user later asks | Read-only inspection only | Findings first, file/line references where possible. |
 | High-risk deletion | `/promptify 删除旧支付模块` | Analysis-first | high-risk task | No before confirmation | Read-only inspection allowed | Impact analysis, affected scope, confirmation request. |
-| Refactor with tests | `/promptify 重构订单状态计算逻辑并补测试` | Direct execution | refactor with test expectations | Yes, scoped | Yes, relevant checks | Behavior preservation note, tests added or updated, verification result. |
-| Unclear task | `/promptify 优化一下这个模块` | Investigative direct execution or clarification | generic task | Only after scope is clear | Read-only inspection allowed | Assumptions or focused clarification question. |
-| Docs update | `/promptify:docs 更新 README 安装说明` | Direct execution | docs | Yes, docs only | Optional docs validation | Updated docs summary and validation result. |
+| Refactor with tests | `/promptify 重构订单状态计算逻辑并补测试` | Guided prompt-first | refactor with test expectations | Only after user confirms | Read-only discovery before confirmation | Complete generated brief plus execution prompt. |
+| Unclear task | `/promptify 优化一下这个模块` | Guided prompt-first or clarification | generic task | Only after scope is clear and user confirms | Read-only inspection allowed | Assumptions or focused clarification question. |
+| Docs update | `/promptify:docs 更新 README 安装说明` | Guided prompt-first | docs | Only after user confirms, docs only | Optional docs validation after confirmation | Updated docs summary and validation result. |
 | Planning | `/promptify:plan 支持团队模板覆盖` | Plan-only | plan | No | Read-only inspection allowed | Staged plan, risks, tests, rollout notes. |
 
 ### 19.2 Manual QA Checklist
@@ -756,12 +762,12 @@ MVP is accepted when the following scenarios work:
 Before v0.1 is considered complete, maintainers should manually verify:
 
 - Each template renders a coherent brief with no placeholder text.
-- Direct execution and prompt-only flows behave differently.
+- Guided prompt-first and prompt-only compatibility flows behave differently.
 - High-risk inputs never proceed directly to destructive edits.
 - Claude Code adapter loads locally or documents a current limitation.
 - Codex adapter loads locally or documents a current limitation.
 - README examples match the implemented command or fallback behavior.
-- Generated Chinese output is clear, concise, and suitable for coding-assistant execution.
+- Generated output follows the user's input language and remains clear, concise, and suitable for coding-assistant execution.
 
 ## 20. Risks and Mitigations
 
@@ -769,7 +775,7 @@ Before v0.1 is considered complete, maintainers should manually verify:
 
 Mitigation:
 
-- Make direct execution the default.
+- Make guided prompt-first the default.
 - Position the product as task orchestration, not prompt beautification.
 - Keep templates coding-assistant-specific and platform-aware.
 
@@ -785,8 +791,8 @@ Mitigation:
 
 Mitigation:
 
-- `/promptify` defaults to direct execution.
-- `/promptify:generate` is explicitly opt-in.
+- `/promptify` defaults to guided prompt-first.
+- `/promptify:generate` is retained as a compatibility alias.
 
 ### 20.4 Risk: The Assistant Edits Too Broadly
 
@@ -810,7 +816,7 @@ Mitigation:
 - Keep shared templates platform-neutral.
 - Maintain thin platform adapters.
 - Do not force a Claude Code-specific plugin structure onto Codex.
-- Treat direct execution as the default product behavior, but implement it using each host's native mechanism.
+- Treat guided prompt-first as the default product behavior, and implement confirmed execution using each host's native mechanism.
 
 ## 21. Roadmap
 
@@ -821,7 +827,7 @@ Mitigation:
 - Core commands
 - Core templates
 - Conservative safety behavior
-- Chinese-first README
+- Input-language brief rules
 
 ### v0.2
 
@@ -841,7 +847,7 @@ Mitigation:
 
 1. Should the public command name be `/promptify` on both Claude Code and Codex when the host supports commands?
 2. Should the default language follow the user's input language or remain configurable?
-3. Should direct execution always show the generated brief first, or keep it internal and only show progress?
+3. Should the execution confirmation prompt support short replies such as "执行" and "继续", or require an exact phrase?
 4. Should the plugin include team-level template override in v0.1, or defer it to v0.2?
 5. Should high-risk tasks always ask confirmation, or only when a destructive action is about to happen?
 6. What is the best Codex packaging format for the first public release: skill, repository instruction package, or both?

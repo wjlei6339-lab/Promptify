@@ -17,7 +17,7 @@ Promptify classifies short user input with lightweight keyword and intent cues.
 ## Priority
 
 1. Explicit specialized command wins.
-2. High-risk signals override normal direct execution.
+2. High-risk signals override normal execution confirmation and force analysis-first handling.
 3. User-stated intent wins over secondary words.
 4. Closely related multi-intent tasks use one brief with primary and secondary goals.
 5. Independent multi-intent tasks ask one focused clarification question or propose splitting the work.
@@ -27,9 +27,9 @@ Promptify classifies short user input with lightweight keyword and intent cues.
 
 | Input | Route | Mode |
 |---|---|---|
-| `/promptify 修复登录失败提示` | debug / bugfix | direct execution |
-| `/promptify:generate 修复登录失败提示` | debug / bugfix | prompt-only |
+| `/promptify 修复登录失败提示` | debug / bugfix | guided prompt-first |
+| `/promptify:generate 修复登录失败提示` | debug / bugfix | prompt-only compatibility alias |
 | `/promptify:review 当前改动` | review | review-only |
 | `/promptify 重构支付模块并补测试` | high-risk refactor | analysis-first |
 | `/promptify 删除旧支付模块` | high-risk task | analysis-first |
-| `/promptify 优化一下这个模块` | generic task | investigative direct execution or clarification |
+| `/promptify 优化一下这个模块` | generic task | guided prompt-first or clarification |

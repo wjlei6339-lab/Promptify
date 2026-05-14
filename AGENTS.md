@@ -10,7 +10,7 @@ This repository contains product documentation, shared prompt/workflow rules, th
 
 - `prd/promptify-prd.md`: Product requirements and MVP acceptance criteria.
 - `docs/superpowers/plans/2026-05-13-promptify-mvp.md`: Implementation plan used to build the MVP.
-- `shared/brief-standard.md`: Compact generated brief blocks, execution modes, and language rules.
+- `shared/brief-standard.md`: Compact generated brief blocks, guided prompt-first behavior, execution modes, and language rules.
 - `shared/task-routing.md`: Task type cues, routing priority, and examples.
 - `shared/safety.md`: High-risk signals, safety levels, and confirmation behavior.
 - `shared/templates/*.md`: Core task templates for generic tasks, bugfixes, features, refactors, tests, reviews, docs, and planning.
@@ -27,7 +27,9 @@ This repository contains product documentation, shared prompt/workflow rules, th
 - Keep Codex-specific behavior under `adapters/codex/`.
 - Do not duplicate shared templates into adapters unless packaging requirements explicitly force it.
 - Treat `shared/...` references inside adapters as repository-root-relative paths.
-- Keep output language Chinese-first by default, while preserving technical identifiers in their original form.
+- Match generated brief language to the user's input language by default, while preserving technical identifiers in their original form.
+- Treat `/promptify <short_task>` as the primary user entry: generate the compact brief first, then ask whether to enter execution.
+- Keep `/promptify:generate <short_task>` and `promptify generate: <short task>` as prompt-only compatibility aliases.
 
 ## Safety And Scope
 
@@ -44,7 +46,7 @@ Run these checks after changing shared templates or adapters:
 ```bash
 rg -n "目标：|模式：|上下文：|要求：" shared/templates
 rg -n "analysis-first|prompt-only|review-only|plan-only|shared/templates" adapters
-rg -n "T[B]D|T[O]DO|implement late[r]|fill in detail[s]" shared adapters README.md AGENTS.md
+rg -n "T[B]D|T[O]DO|implement late[r]|fill in detail[s]" shared adapters README.md AGENTS.md CLAUDE.md
 python3 -m json.tool adapters/claude-code/.claude-plugin/plugin.json
 git diff --check HEAD
 ```

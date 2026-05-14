@@ -1,6 +1,6 @@
 ---
 name: promptify
-description: Convert short developer intent into structured Claude Code task workflows with direct execution as the default.
+description: Convert short developer intent into structured Claude Code task briefs and guide the user into optional execution.
 ---
 
 # Promptify for Claude Code
@@ -22,9 +22,10 @@ Consult these repository-root shared files:
 - Honor `CLAUDE.md`, project memory, repository conventions, existing code style, and relevant test commands.
 - Preserve unrelated user changes.
 - Explore the smallest useful project context before filling generated briefs.
-- Generate compact briefs by default: include `目标`, `模式`, `上下文`, and `要求`; add `假设` or `安全门禁` only when needed.
-- Default `/promptify` to direct execution.
-- Keep `/promptify:generate` prompt-only.
+- Generate compact briefs by default using the localized required blocks from `shared/brief-standard.md`; add assumptions or a safety gate only when needed.
+- Default `/promptify` to guided prompt-first behavior: output the compact brief, then ask whether to enter execution.
+- Do not edit files or run execution commands from `/promptify` until the user confirms execution.
+- Keep `/promptify:generate` as a prompt-only compatibility alias.
 - Use analysis-first mode for high-risk signals.
 - Do not perform destructive edits without explicit confirmation.
 - Final reports must include changed files, behavior changes, verification result, risks, and follow-ups.
