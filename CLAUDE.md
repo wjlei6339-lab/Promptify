@@ -2,39 +2,37 @@
 
 ## Project Role
 
-Promptify is a Markdown-first task orchestration package for Claude Code and Codex. It converts short developer intent into structured coding task briefs, shows the generated brief first, and asks the user whether to enter execution.
+Promptify is a Claude Code skill repository. The single skill at `skills/promptify/SKILL.md` converts short developer intent into a structured task brief, shows the brief first, and asks whether to enter execution.
 
-This repository is currently an MVP documentation and workflow package. Do not add a runtime service, package manager, web UI, database, telemetry, cloud sync, or MCP server unless the PRD is updated first.
+This repository is Markdown-only. Do not add a runtime service, npm CLI, package manager, web UI, database, telemetry, cloud sync, MCP server, slash commands, or non-Claude-Code adapters.
 
 ## Claude Code Context
 
-Load and reason from the repository root. The Claude Code adapter under `adapters/claude-code/` depends on repository-root shared sources under `shared/`.
+Load and reason from the repository root. The skill under `skills/promptify/` depends on sibling files under `shared/`.
 
-Key Claude Code files:
+Key files:
 
-- `adapters/claude-code/.claude-plugin/plugin.json`: Plugin metadata. `commands` and `skills` are component paths and should stay as `./commands/` and `./skills/`.
-- `adapters/claude-code/commands/*.md`: Slash command wrappers for Promptify workflows.
-- `adapters/claude-code/skills/promptify/SKILL.md`: Claude Code skill instructions.
-
-Shared behavior files:
-
+- `skills/promptify/SKILL.md`: The Promptify skill.
 - `shared/brief-standard.md`: Generated brief fields, modes, and language rules.
 - `shared/task-routing.md`: Routing cues and priority.
 - `shared/safety.md`: Safety levels, high-risk signals, and confirmation behavior.
-- `shared/templates/*.md`: Core workflow templates.
+- `shared/context-discovery.md`: Minimal-context exploration rules.
+- `shared/templates/*.md`: Core workflow templates (task, bugfix, feature, refactor, test, review, docs, plan, goal).
 
 ## Editing Rules
 
 - Put platform-neutral behavior in `shared/`.
-- Put Claude Code-specific instructions only under `adapters/claude-code/`.
-- Do not duplicate shared templates into the Claude adapter unless packaging requirements explicitly force it.
-- Treat all `shared/...` references in Claude adapter files as repository-root-relative paths.
+- Put skill-specific routing and behavior only in `skills/promptify/SKILL.md`.
+- Treat all `shared/...` references in the skill as repository-root-relative paths; keep `skills/` and `shared/` as siblings.
 - Match generated brief language to the user's input language by default while preserving technical identifiers, commands, paths, package names, and framework names.
-- Preserve the current command modes:
-  - `/promptify`: guided prompt-first; output the generated brief, then ask whether to enter execution.
-  - `/promptify:generate`: prompt-only compatibility alias; do not edit, run commands, or ask to execute.
-  - `/promptify:review`: review-only; findings first.
-  - `/promptify:plan`: plan-only; do not edit code unless the user explicitly asks to continue.
+- The `promptify` skill is the only entry point. There are no slash commands, no host abstractions, no install/update/uninstall CLIs.
+- Preserve mode semantics inside the skill:
+  - default prompt-first: output the brief, then ask whether to enter execution.
+  - prompt-only: output the brief and stop.
+  - review-only: findings first; do not edit unless explicitly requested.
+  - plan-only: produce the plan and stop.
+  - goal: produce only the goal block from `shared/templates/goal.md` and stop.
+  - analysis-first: auto-enforced on high-risk signals.
 
 ## Safety Rules
 
@@ -45,13 +43,12 @@ Shared behavior files:
 
 ## Verification
 
-After changing shared templates, Claude adapter files, README, or this file, run the relevant checks:
+After changing the SKILL.md, shared templates, README, AGENTS.md, or this file, run the relevant checks:
 
 ```bash
 rg -n "目标：|模式：|上下文：|要求：" shared/templates
-rg -n "analysis-first|prompt-only|review-only|plan-only|shared/templates" adapters/claude-code
-rg -n "T[B]D|T[O]DO|implement late[r]|fill in detail[s]" shared adapters README.md AGENTS.md CLAUDE.md
-python3 -m json.tool adapters/claude-code/.claude-plugin/plugin.json
+rg -n "analysis-first|prompt-only|review-only|plan-only|shared/templates" skills
+rg -n "T[B]D|T[O]DO|implement late[r]|fill in detail[s]" shared skills README.md README.zh-CN.md AGENTS.md CLAUDE.md
 git diff --check HEAD
 ```
 
