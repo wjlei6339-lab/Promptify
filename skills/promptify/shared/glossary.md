@@ -42,11 +42,31 @@ A durable `/goal` prompt for long-running work. It is larger than a compact brie
 **PRD**:
 A product requirement document synthesized from current conversation and minimal project context. It describes the problem, solution, user stories, implementation decisions, testing decisions, out of scope, and open notes. It is not an execution plan and does not publish to an issue tracker.
 
+**Brief principles**:
+The four-principle behavior contract that every generated brief defaults to. Defined in `shared/principles.md`. The principles shape brief content; they do not add new brief blocks or modes.
+
+**Think Before Coding**:
+Principle 1. State assumptions, surface tradeoffs, and stop on confusion instead of picking one interpretation silently.
+_Avoid_: silent assumption, drive-by interpretation.
+
+**Simplicity First**:
+Principle 2. Keep the brief's scope to the minimum that solves the stated problem. No speculative features, abstractions, or configuration.
+_Avoid_: bloated abstraction, premature flexibility.
+
+**Surgical Changes**:
+Principle 3. The brief restricts edits to the lines required by the goal and forbids drive-by refactors, style drift, or deletion of pre-existing dead code.
+_Avoid_: drive-by refactor, scope creep.
+
+**Goal-Driven Verification**:
+Principle 4. Imperative requests are restated as verifiable goals with a concrete check (test, command, or observation). The brief names how the future executor proves the goal was met.
+_Avoid_: vague success language such as "make it work".
+
 ## Relationships
 
 - Promptify turns short developer intent into a brief.
 - Task routing chooses the template used to generate the brief.
 - Brief standard defines the required blocks and mode behavior for generated briefs.
+- Brief principles define the default behavior contract every generated brief must reflect.
 - Safety rules decide whether a brief needs a safety gate or analysis-first handling.
 - Context discovery tells the host assistant what to inspect before filling or executing a brief.
 - PRD mode turns current context into a product requirement document and stops before implementation.

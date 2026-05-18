@@ -13,6 +13,7 @@ Read these files relative to this skill directory:
 
 - `shared/brief-standard.md`
 - `shared/glossary.md`
+- `shared/principles.md`
 - `shared/task-routing.md`
 - `shared/safety.md`
 - `shared/context-discovery.md`
@@ -21,12 +22,12 @@ Read these files relative to this skill directory:
 
 ## Default Behavior
 
-1. Read `shared/task-routing.md`, `shared/safety.md`, `shared/context-discovery.md`, `shared/brief-standard.md`, and `shared/glossary.md`.
+1. Read `shared/task-routing.md`, `shared/safety.md`, `shared/context-discovery.md`, `shared/brief-standard.md`, `shared/principles.md`, and `shared/glossary.md`.
 2. Classify the user's intent.
 3. Explore the smallest useful project context per `shared/context-discovery.md`.
 4. Confirm task type and risk level.
 5. Select the matching template from `shared/templates/`.
-6. Generate a compact brief with the localized required blocks from `shared/brief-standard.md`; add assumptions or a safety gate only when needed.
+6. Generate a compact brief with the localized required blocks from `shared/brief-standard.md`; fill each block so the brief reflects the four principles in `shared/principles.md`; add assumptions or a safety gate only when needed.
 7. For prd-only mode, generate the PRD from `shared/templates/prd.md` and stop.
 8. Output the generated brief first.
 9. Ask the user whether to enter execution.
@@ -51,6 +52,7 @@ Map the user's natural-language request to one of these modes:
 - Honor `CLAUDE.md`, project memory, repository conventions, existing code style, and relevant test commands.
 - Preserve unrelated user changes.
 - Use terminology from `shared/glossary.md` consistently in generated briefs and maintenance work.
+- Every generated brief must reflect the four principles in `shared/principles.md`: think before coding, simplicity first, surgical changes, and goal-driven verification.
 - Generate the brief in the user's input language; keep technical identifiers, commands, paths, package names, and framework names in their original form.
 - Do not perform destructive edits without explicit confirmation.
 - Final reports must include changed files, behavior changes, verification result, risks, and follow-ups.
